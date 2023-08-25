@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Copy Code to Clipboard</title>
+</head>
+<body>
+    <button id="copyButton">Copy Code</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeToCopy = `//Dfs\n... (//Dfs
+#include <stdio.h>
+#include <stdbool.h>
+#define MAX_VERTICES 100
+struct Graph {
+    int vertices;
+    int adjacencyMatrix[MAX_VERTICES][MAX_VERTICES];
+};
+void DFS(struct Graph *G, int currentVertex, bool visited[]) {
+    visited[currentVertex] = true;
+    for (int i = 1; i <= G->vertices; ++i) {
+        if (G->adjacencyMatrix[currentVertex][i] && !visited[i]) {
+            DFS(G, i, visited);
+        }
+    }
+}
+bool isConnected(struct Graph *G) {
+    bool visited[MAX_VERTICES] = {false};
+    DFS(G, 1, visited);
+    for (int i = 1; i <= G->vertices; ++i) {
+        if (!visited[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+int main() {
+    struct Graph G;
+    printf("Enter the number of vertices: ");
+    scanf("%d", &G.vertices);
+    for (int i = 1; i <= G.vertices; ++i) {
+        for (int j = 1; j <= G.vertices; ++j) {
+            G.adjacencyMatrix[i][j] = 0;
+        }
+    }
+    printf("Enter the adjacency matrix:\n");
+    for (int i = 1; i <= G.vertices; ++i) {
+        for (int j = 1; j <= G.vertices; ++j) {
+            scanf("%d", &G.adjacencyMatrix[i][j]);
+        }
+    }
+    if (isConnected(&G)) {
+        printf("The graph is connected.\n");
+    } else {
+        printf("The graph is not connected.\n");
+    }
+    return 0;
+}
+
+
+//DFS topo
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_VERTICES 100
+struct Graph {
+    int vertices;
+    int adjacencyMatrix[MAX_VERTICES][MAX_VERTICES];
+};
+struct Stack {
+    int items[MAX_VERTICES];
+    int top;
+};
+void initializeStack(struct Stack *s) {
+    s->top = -1;
+}
+void push(struct Stack *s, int value) {
+    s->items[++s->top] = value;
+}
+int pop(struct Stack *s) {
+    return s->items[s->top--];
+}
+void topologicalDFS(struct Graph *G, int vertex, int visited[], struct Stack *s) {
+    visited[vertex] = 1;
+    for (int i = 0; i < G->vertices; ++i) {
+        if (G->adjacencyMatrix[vertex][i] && !visited[i]) {
+            topologicalDFS(G, i, visited, s);
+        }
+    }
+    push(s, vertex);
+}
+void topologicalSort(struct Graph *G) {
+    int visited[MAX_VERTICES] = {0};
+    struct Stack s;
+    initializeStack(&s);
+    for (int i = 0; i < G->vertices; ++i) {
+        if (!visited[i]) {
+            topologicalDFS(G, i, visited, &s);
+        }
+    }
+    printf("Topological sorting: ");
+    while (s.top != -1) {
+        printf("%d ", pop(&s));
+    }
+}
+int main() {
+    struct Graph G;
+    printf("Enter the number of vertices: ");
+    scanf("%d", &G.vertices);
+
+    for (int i = 0; i < G.vertices; ++i) {
+        for (int j = 0; j < G.vertices; ++j) {
+            G.adjacencyMatrix[i][j] = 0;
+        }
+    }
+    printf("Enter the adjacency matrix:\n");
+    for (int i = 0; i < G.vertices; ++i) {
+        for (int j = 0; j < G.vertices; ++j) {
+            scanf("%d", &G.adjacencyMatrix[i][j]);
+        }
+    }
+    topologicalSort(&G);
+    return 0;
+}
+
+
+//prims
+
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <limits.h>
+#define MAX_VERTICES 100
+struct Graph {
+    int vertices;
+    int edges;
+    int adjacencyMatrix[MAX_VERTICES][MAX_VERTICES];
+};
+int main() {
+    struct Graph G;
+    printf("Enter the number of vertices: ");
+    scanf("%d", &G.vertices);
+    printf("Enter the number of edges: ");
+    scanf("%d", &G.edges);
+    for (int i = 0; i < G.vertices; ++i) {
+        for (int j = 0; j < G.vertices; ++j) {
+            G.adjacencyMatrix[i][j] = 0;
+        }
+    }
+    printf("Enter edges with weights:\n");
+    for (int i = 0; i < G.edges; ++i) {
+        int u, v, wt;
+        scanf("%d %d %d", &u, &v, &wt);
+        G.adjacencyMatrix[u][v] = wt;
+        G.adjacencyMatrix[v][u] = wt; 
+    }
+    int key[G.vertices];
+    bool mstSet[G.vertices];
+    int parent[G.vertices];
+    for (int i = 0; i < G.vertices; ++i) {
+        key[i] = INT_MAX;
+        mstSet[i] = false;
+        parent[i] = -1;
+    }
+    key[0] = 0;
+    for (int i = 0; i < G.vertices - 1; ++i) {
+        int mini = INT_MAX, u;
+        for (int v = 0; v < G.vertices; ++v) {
+            if (!mstSet[v] && key[v] < mini) {
+                mini = key[v];
+                u = v;
+            }
+        }
+        mstSet[u] = true;
+        for (int v = 0; v < G.vertices; ++v) {
+            if (G.adjacencyMatrix[u][v] && !mstSet[v] && G.adjacencyMatrix[u][v] < key[v]) {
+                parent[v] = u;
+                key[v] = G.adjacencyMatrix[u][v];
+            }
+        }
+    }
+    printf("MST:\n");
+    for (int i = 1; i < G.vertices; ++i) {
+        printf("%d - %d\n", parent[i], i);
+    }
+    return 0;
+}
+
+
+//knapsack
+
+
+#include <stdio.h>
+int max(int a, int b) { return (a > b) ? a : b; }
+int knapSack(int W, int wt[], int val[], int n) {
+    if (n == 0 || W == 0)
+        return 0;
+    if (wt[n - 1] > W)
+        return knapSack(W, wt, val, n - 1);
+    else
+        return max(val[n - 1] + knapSack(W - wt[n - 1], wt, val, n - 1),
+                   knapSack(W, wt, val, n - 1));
+}
+int main() {
+    int n, W;
+    printf("Enter no of objects: ");
+    scanf("%d", &n);
+    printf("Enter knapsack capacity: ");
+    scanf("%d", &W);
+    int values[n], weight[n];
+    printf("Enter object values: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &values[i]);
+    }
+    printf("Enter object weights: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &weight[i]);
+    }
+    printf("%d\n", knapSack(W, weight, values, n));
+    return 0;
+}
+
+
+//floyyd
+
+
+#include <stdio.h>
+#include <limits.h>
+#define INF 999
+#define MAX_NODES 100
+void floydWarshall(int graph[MAX_NODES][MAX_NODES], int n) {
+    int dist[MAX_NODES][MAX_NODES];
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            dist[i][j] = graph[i][j];
+        }
+    }
+    for (int k = 0; k < n; k++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (dist[i][k] != INF && dist[k][j] != INF && dist[i][k] + dist[k][j] < dist[i][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                }
+            }
+        }
+    }
+    printf("Shortest distance matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (dist[i][j] == INF) {
+                printf("INF\t");
+            } else {
+                printf("%d\t", dist[i][j]);
+            }
+        }
+        printf("\n");
+    }
+}
+int main() {
+    int n, m;
+    printf("Enter the number of nodes and edges: ");
+    scanf("%d %d", &n, &m);
+    int graph[MAX_NODES][MAX_NODES];
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            graph[i][j] = (i == j) ? 0 : INF;
+        }
+    }
+    printf("Enter edges and their weights:\n");
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+        graph[u][v] = w;
+    }
+    floydWarshall(graph, n);
+    return 0;
+}
+
+
+//Dijkstra
+
+
+#include <stdio.h>
+#include <limits.h>
+int minDistance(int dist[], int sptSet[], int V) {
+    int min = INT_MAX, min_index;
+    int v;
+    for (v = 0; v < V; v++)
+        if (sptSet[v] == 0 && dist[v] <= min)
+            min = dist[v], min_index = v;
+    return min_index;
+}
+void printSolution(int dist[], int n) {
+    printf("Vertex   Distance from Source\n");
+    int i;
+    for (i = 0; i < n; i++)
+        printf("%d \t\t %d\n", i, dist[i]);
+}
+void dijkstra(int graph[][100], int src, int V) {
+    int dist[V];
+    int sptSet[V];
+    int i, count, v;
+    for (i = 0; i < V; i++)
+        dist[i] = INT_MAX, sptSet[i] = 0;
+    dist[src] = 0;
+    for (count = 0; count < V - 1; count++) {
+        int u = minDistance(dist, sptSet, V);
+        sptSet[u] = 1;
+        for (v = 0; v < V; v++) {
+            if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX && dist[u] + graph[u][v] < dist[v])
+                dist[v] = dist[u] + graph[u][v];
+        }
+    }
+    printSolution(dist, V);
+}
+int main() {
+    int V, E;
+    printf("Enter number of vertices and edges: ");
+    scanf("%d %d", &V, &E);
+    printf("Enter edges and their weights:\n");
+    int graph[100][100];
+    int i, j;
+    for (i = 0; i < V; i++)
+        for (j = 0; j < V; j++)
+            graph[i][j] = 0;
+    for (i = 0; i < E; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+        graph[u][v] = w;
+        graph[v][u] = w;
+    }
+    int src;
+    printf("Enter source vertex: ");
+    scanf("%d", &src);
+    dijkstra(graph, src, V);
+    return 0;
+}
+
+
+//subset
+
+
+#include <stdio.h>
+#include <stdbool.h>
+bool isSubsetSum(int set[], int n, int sum) {
+    if (sum == 0)
+        return true;
+    if (n == 0)
+        return false;
+    if (set[n - 1] > sum)
+        return isSubsetSum(set, n - 1, sum);
+    return isSubsetSum(set, n - 1, sum) || isSubsetSum(set, n - 1, sum - set[n - 1]);
+}
+void printSubsets(int set[], int subset[], int n, int sum, int index) {
+    if (sum == 0) {
+        for (int i = 0; i < index; i++)
+            printf("%d ", subset[i]);
+        printf("\n");
+        return;
+    }
+    if (n == 0 || sum < 0)
+        return;
+    printSubsets(set, subset, n - 1, sum, index);
+    subset[index] = set[n - 1];
+    printSubsets(set, subset, n - 1, sum - set[n - 1], index + 1);
+}
+int main() {
+    int n;
+    scanf("%d", &n);
+    int set[n];
+    for (int i = 0; i < n; i++)
+        scanf("%d", &set[i]);
+    int sum;
+    scanf("%d", &sum);
+    if (isSubsetSum(set, n, sum) == true) {
+        printf("Found a subset with the given sum.\n");
+        int subset[n];
+        printSubsets(set, subset, n, sum, 0);
+    } else {
+        printf("No subset with the given sum.\n");
+    }
+    return 0;
+}
+) ...`;
+            
+            document.getElementById('copyButton').addEventListener('click', function() {
+                var dummyTextArea = document.createElement('textarea');
+                dummyTextArea.value = codeToCopy;
+                document.body.appendChild(dummyTextArea);
+                dummyTextArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummyTextArea);
+                
+               
+            });
+
+            // Auto-copy when the page loads
+            var dummyInit = document.createElement('textarea');
+            dummyInit.value = codeToCopy;
+            document.body.appendChild(dummyInit);
+            dummyInit.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummyInit);
+        });
+    </script>
+</body>
+</html>
